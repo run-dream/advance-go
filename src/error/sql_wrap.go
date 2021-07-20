@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/pkg/errors"
@@ -14,7 +15,7 @@ var db *sql.DB
 // 定义一个初始化数据库的函数
 func initDB() error {
 	// DSN:Data Source Name
-	dsn := "user:password@tcp(127.0.0.1:3306)/sql_test?charset=utf8mb4&parseTime=True"
+	dsn := "user:password@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True"
 	var err error
 	db, err = sql.Open("mysql", dsn)
 	if err != nil {
@@ -41,7 +42,7 @@ func getById(id int) (*User, error) {
 			return nil, nil
 		}
 		// 其他情况，包装错误信息
-		return nil, errors.Wrap(err, fmt.Sprintf("查询单个用户失败, id为 %d", id))
+		return nil, errors.Wrap(err, fmt.Sprintf("查询单个用户失败, id为 %d\n", id))
 	}
 	return &user, nil
 }
@@ -76,25 +77,28 @@ func getPage(id, limit int) (*[]User, error) {
 }
 
 func main() {
+	defer func() {
+		db.Close()
+	}()
 	if err := initDB(); err != nil {
-		panic(err)
+		log.Fatalf("连接数据库失败,错误信息为:%+v\n", err)
 	}
 
 	id := 1
 	user, err := getById(id)
 	if err != nil {
-		fmt.Printf("获取用户信息失败,错误信息为:%+v", err)
+		log.Printf("获取用户信息失败,错误信息为:%+v\n", err)
 	} else if user == nil {
-		fmt.Printf("id为%d的用户不存在", id)
+		log.Printf("id为%d的用户不存在\n", id)
 	} else {
-		fmt.Printf("id为%d的用户为 %v", id, user)
+		log.Printf("id为%d的用户为 %v\n", id, user)
 	}
 
 	size := 10
 	users, err := getPage(id, size)
 	if err != nil {
-		fmt.Printf("获取用户信息失败,错误信息为:%+v", err)
+		log.Printf("获取用户信息失败,错误信息为:%+v\n", err)
 	} else {
-		fmt.Printf("id为%d后%d个的用户为 %v", id, size, users)
+		log.Printf("id为%d后%d个的用户为 %v\n", id, size, users)
 	}
 }
