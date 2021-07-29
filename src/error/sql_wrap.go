@@ -38,7 +38,7 @@ func getById(id int) (*User, error) {
 	var user User
 	if err := db.QueryRow(sqlStr, id).Scan(&user.Id, &user.Name, &user.Age); err != nil {
 		// 查不到属于正常情况，所以不需要包装，直接返回空指针
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
 		// 其他情况，包装错误信息
@@ -54,7 +54,7 @@ func getPage(id, limit int) (*[]User, error) {
 	users := []User{}
 	if err != nil {
 		// 查不到属于正常情况，所以不需要包装，直接返回空数组
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return &users, nil
 		}
 		// 其他情况，包装错误信息
