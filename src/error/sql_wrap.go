@@ -32,16 +32,18 @@ type User struct {
 	Name string
 }
 
+// ErrUserNotFound 未找到用户的错误
+var ErrUserNotFound = errors.New("未找到用户")
+
 // getById 根据主键查询单个用户信息
 func getById(id int) (*User, error) {
 	sqlStr := "select id, name, age from user where id=?"
 	var user User
+	// 包装错误信息
 	if err := db.QueryRow(sqlStr, id).Scan(&user.Id, &user.Name, &user.Age); err != nil {
-		// 查不到属于正常情况，所以不需要包装，直接返回空指针
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
+			return nil, errors.Wrapf(ErrUserNotFound, "未找到用户,id为 %d\n", id)
 		}
-		// 其他情况，包装错误信息
 		return nil, errors.Wrap(err, fmt.Sprintf("查询单个用户失败, id为 %d\n", id))
 	}
 	return &user, nil
@@ -52,12 +54,11 @@ func getPage(id, limit int) (*[]User, error) {
 	sqlStr := "select id, name, age from user where id > ? limit ?"
 	rows, err := db.Query(sqlStr, id, limit)
 	users := []User{}
+	// 包装错误信息
 	if err != nil {
-		// 查不到属于正常情况，所以不需要包装，直接返回空数组
 		if errors.Is(err, sql.ErrNoRows) {
-			return &users, nil
+			return &users, errors.Wrap(ErrUserNotFound, fmt.Sprintf("查询全部个用户失败, id为 %d, 参数为 %d", id, limit))
 		}
-		// 其他情况，包装错误信息
 		return nil, errors.Wrap(err, fmt.Sprintf("查询全部个用户失败, id为 %d, 参数为 %d", id, limit))
 	}
 
@@ -86,12 +87,12 @@ func main() {
 
 	id := 1
 	user, err := getById(id)
-	if err != nil {
-		log.Printf("获取用户信息失败,错误信息为:%+v\n", err)
-	} else if user == nil {
+	if err == nil {
+		log.Printf("id为%d的用户为 %v\n", id, user)
+	} else if errors.Is(err, ErrUserNotFound) {
 		log.Printf("id为%d的用户不存在\n", id)
 	} else {
-		log.Printf("id为%d的用户为 %v\n", id, user)
+		log.Printf("获取用户信息失败,错误信息为:%+v\n", err)
 	}
 
 	size := 10
