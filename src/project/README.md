@@ -24,11 +24,17 @@ go get -u github.com/go-kratos/kratos/cmd/kratos/v2@latest
 # 注意 kratos 需要安装 protoc
 # 从 https://github.com/protocolbuffers/protobuf/releases 下载解压，配置环境变量
 
-# 安装protoc-gen-go
-# go get -u github.com/golang/protobuf/protoc-gen-go
+# 官方的protoc编译器中并不支持Go语言，需要安装一个插件才能生成Go代码, 安装protoc-gen-go
+go get -u github.com/golang/protobuf/protoc-gen-go
 
 # 新建项目模板
 kratos new project
+
+# 生成所有proto源码、wire等等
+go generate ./...
+
+# 运行项目
+kratos run
 ```
 
 ### 目录结构
@@ -36,23 +42,22 @@ kratos new project
 ```bash
 # windows 下执行 tree /f
 
-│  .gitignore # git 忽略掉二进制文件、临时文件以及开发工具环境
+│  .gitignore   # git 忽略掉二进制文件、临时文件以及开发工具环境
 │  Dockerfile	# Docker的配置文件
-│  generate.go # 
-│  go.mod
-│  go.sum
-│  LICENSE
-│  Makefile
-│  README.md
-│  tree.txt
+│  generate.go  
+│  go.mod       # go mod
+│  go.sum       # go mod
+│  LICENSE      # 开源许可
+│  Makefile		# linux 下使用 make 命令来构建项目 
+│  README.md	# 项目说明
 │  
-├─api
-│  └─helloworld
-│      └─v1
-│              error_reason.pb.go
-│              error_reason.pb.validate.go
-│              error_reason.proto
-│              error_reason.swagger.json
+├─api			# 下面维护了微服务使用的proto文件以及根据它们所生成的go文件
+│  └─helloworld	# 项目名称
+│      └─v1		# 接口版本
+│              error_reason.pb.go			# protoc 生成的结构相关的文件
+│              error_reason.pb.validate.go	# protoc 生成的message中属性的验证规则
+│              error_reason.proto			# proto   文件
+│              error_reason.swagger.json	# swagger 文档
 │              error_reason_errors.pb.go
 │              greeter.pb.go
 │              greeter.pb.validate.go
@@ -61,41 +66,41 @@ kratos new project
 │              greeter_grpc.pb.go
 │              greeter_http.pb.go
 │              
-├─cmd
+├─cmd			# 整个项目启动的入口文件
 │  └─project
-│          main.go
-│          wire.go
-│          wire_gen.go
+│          main.go		# 入口文件
+│          wire.go		
+│          wire_gen.go	# wire 生成
 │          
-├─configs
+├─configs				# 配置文件
 │      config.yaml
 │      
-├─internal
-│  ├─biz
+├─internal				# 业务逻辑		
+│  ├─biz				# 业务逻辑的组装层，类似 DDD 的 domain 层，data 类似 DDD 的 repo
 │  │      biz.go
 │  │      greeter.go
 │  │      README.md
 │  │      
-│  ├─conf
+│  ├─conf				# 内部使用的config的结构定义，使用proto格式生成
 │  │      conf.pb.go
 │  │      conf.proto
 │  │      
-│  ├─data
+│  ├─data				#  业务数据访问，包含 cache、db 等封装，实现了 biz 的 repo 接口
 │  │      data.go
 │  │      greeter.go
 │  │      README.md
 │  │      
-│  ├─server
+│  ├─server				# http和grpc实例的创建和配置
 │  │      grpc.go
 │  │      http.go
 │  │      server.go
 │  │      
-│  └─service
+│  └─service			# 实现了 api 定义的服务层，类似 DDD 的 application 层，处理 DTO 到 biz 领域实体的转换(DTO -> DO)，同时协同各类 biz 交互，但是不应处理复杂逻辑
 │          greeter.go
 │          README.md
 │          service.go
 │          
-└─third_party
+└─third_party			# api 依赖的第三方proto
     │  README.md
     │  
     ├─errors
@@ -119,8 +124,27 @@ kratos new project
 
 
 
-
 ### 使用到的包和作用
 
+#### gRPC 相关
+
+- `google.golang.org/grpc`
+
+#### 依赖注入相关
+
+- `github.com/google/wire`
+
+#### 
 
 ### 配置管理
+
+
+
+
+
+### 参考文档
+
+[make](https://www.ruanyifeng.com/blog/2015/02/make.html)
+
+[protoc](https://segmentfault.com/a/1190000020418571)
+
