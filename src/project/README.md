@@ -28,10 +28,17 @@ go get -u github.com/go-kratos/kratos/cmd/kratos/v2@latest
 # 从 https://github.com/protocolbuffers/protobuf/releases 下载解压，配置环境变量
 
 # 安装protoc-gen-go
+# 官方的protoc编译器中并不支持Go语言，需要安装一个插件才能生成Go代码, 安装protoc-gen-go
 go get -u github.com/golang/protobuf/protoc-gen-go
 
 # 新建项目模板
 kratos new project
+
+# 生成所有proto源码、wire等等
+go generate ./...
+
+# 运行项目
+kratos run
 ```
 
 ## 目录结构
