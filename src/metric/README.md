@@ -82,16 +82,15 @@ git clone 以后, tree /F, 大致过一遍代码
 
 - 命令模式 command
 
-  将所有请求外部系统（或者叫依赖服务）的逻辑封装到 Go 和 Run 方法里
+  将所有请求外部系统（或者叫依赖服务）的逻辑封装到 Go 和 Do 方法里
 
 - 隔离策略 
 
   为每个 command 生成一个  pool 
 
 - 观察者模式
-
   - Hystrix通过观察者模式对服务进行状态监听
-  - 每个任务都包含有一个对应的Metrics，所有Metrics都由 Registry 来进行维护，
+  - 每个任务都包含有一个对应的 Registry，管理所有的 metricExchange
   - 在任务的不同阶段会往Metrics中写入不同的信息，Metrics会对统计到的历史信息进行统计汇总，供熔断器以及Dashboard监控时使用
 
 
