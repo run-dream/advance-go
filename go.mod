@@ -6,6 +6,7 @@ require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/fatih/color v1.12.0 // indirect
 	github.com/go-kratos/kratos v1.0.0 // indirect
+	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/wire v0.5.0 // indirect
