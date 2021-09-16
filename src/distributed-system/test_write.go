@@ -55,6 +55,7 @@ func main() {
 	fmt.Printf("写入数量为: %v\n", count)
 	for _, size := range sizes {
 		rdb.FlushAll()
+
 		beforeMemory, err := GetUsedMemory()
 		if err != nil {
 			fmt.Printf("写入前获取内存占用失败:%v\n", err)
